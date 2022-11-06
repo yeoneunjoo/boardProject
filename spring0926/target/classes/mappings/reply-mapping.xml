@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ReplyDAO">
+
+	<resultMap type="report" id="reportResult">
+		<id property="sid" column="SID" />
+		<result property="bid" column="BID" />
+		<result property="rid" column="RID" />
+		<collection property="rid" column="RID" ofType="com.yeon.biz.reply.ReplyVO" select="selectAllReply"/>
+	</resultMap>
+
+	
+	<resultMap type="replyJoin" id="replyReport">
+		<id property="rid" column="RID" />
+		<result property="rbid" column="BID" />
+		<result property="rmid" column="MID" />
+		<result property="rname" column="RNAME" />
+		<result property="rcontent" column="RCONTENT" />
+		<result property="rreport" column="RREPORT" />
+		<result property="rblind" column="RBLIND" />
+		<result property="sid" column="SID" />
+		<result property="bid" column="BID" />
+	</resultMap>
+	
+	<resultMap type="reply" id="replyResult">
+		<id property="rid" column="RID" />
+		<result property="rbid" column="BID" />
+		<result property="rmid" column="MID" />
+		<result property="rname" column="RNAME" />
+		<result property="rcontent" column="RCONTENT" />
+		<result property="rreport" column="RREPORT" />
+		<result property="rblind" column="RBLIND" />
+	</resultMap>
+	
+	<insert id="insertReply">
+		INSERT INTO REPLY(RID,BID,MID,RNAME,RCONTENT) VALUES((SELECT NVL(MAX(RID),0)+1 FROM REPLY),#{rbid},#{rmid},#{rname},#{rcontent})
+	</insert>
+	
+	<update id="updateReply">
+		UPDATE REPLY SET RCONTENT=#{rcontent} WHERE RID=#{rid}
+	</update>
+	
+	<update id="updateRblind">
+		UPDATE REPLY SET RBLIND=RBLIND+1 WHERE RID=#{rid}
+	</update>
+	
+	<update id="updateRreport">
+		UPDATE REPLY SET RREPORT=RREPORT+1 WHERE RID=#{rid}
+	</update>
+	
+	<update id="resetRreport">
+		UPDATE REPLY SET RREPORT=0 WHERE RID=#{rid}
+	</update>
+	
+	<delete id="deleteReply">  <!-- 댓글삭제시, rid로 댓글삭제 -->
+		DELETE REPLY WHERE RID=#{rid}
+	</delete>
+	
+	<delete id="deleteReplyReport"> <!-- 댓글삭제시, 신고된 댓글의 신고번호 삭제 -->
+		DELETE FROM (SELECT * FROM BOARD, REPORT WHERE BOARD.BID=REPORT.BID) WHERE RID=#{rid}
+	</delete>
+	
+	<delete id="deleteReply_B"> <!-- 글삭제시, bid로 댓글 삭제 -->
+		DELETE REPLY WHERE BID=#{rbid}
+	</delete>
+	
+	<delete id="deleteReply_M"> <!-- 회원탈퇴시, 회원이 쓴 댓글 mid로 삭제 -->
+		DELETE REPLY WHERE MID=#{rmid}
+	</delete>
+	
+	<delete id="deleteReplyforDM"> <!-- 회원탈퇴시, 신고된 댓글의 신고번호를 mid로 삭제 -->
+		DELETE FROM (SELECT * FROM REPLY, REPORT WHERE REPLY.RID=REPORT.RID) WHERE MID=#{rmid}
+	</delete>
+	
+	<select id="selectOneReply" resultMap="replyReport">
+		SELECT * FROM REPLY WHERE BID=#{rbid}
+	</select>
+	
+	<select id="selectOneReplyforReport" resultMap="replyResult">
+		SELECT * FROM REPLY WHERE RID=#{rid}
+	</select>
+	
+	<select id="selectAllReply" resultMap="replyResult">
+		SELECT * FROM REPLY WHERE BID=#{rbid} ORDER BY RID ASC
+
+	</select>
+</mapper>

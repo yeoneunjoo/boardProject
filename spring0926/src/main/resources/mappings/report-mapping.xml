@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ReportDAO">
+
+	<resultMap type="report" id="reportResult">
+		<id property="sid" column="SID" />
+		<result property="bid" column="BID" />
+		<result property="rid" column="RID" />
+		<collection property="bid" column="BID" ofType="com.yeon.biz.board.BoardVO" select="selectAllBR"/>
+		<collection property="rid" column="RID" ofType="com.yeon.biz.reply.ReplyVO" select="selectAllReportReply"/>
+	</resultMap>
+
+	<resultMap type="boardJoin" id="boardReport">
+		<id property="bid" column="BID" />
+		<result property="title" column="TITLE" />
+		<result property="writer" column="WRITER" />
+		<result property="mid" column="MID" />
+		<result property="content" column="CONTENT" />
+		<result property="views" column="VIEWS" />
+		<result property="regdate" column="REGDATE" />
+		<result property="fileName" column="UPLOADFILE" />
+		<result property="sid" column="SID" />
+		<result property="rid" column="RID" />
+	</resultMap>
+	
+	<resultMap type="replyJoin" id="replyReport">
+		<id property="rid" column="RID" />
+		<result property="rbid" column="BID" />
+		<result property="rmid" column="MID" />
+		<result property="rname" column="RNAME" />
+		<result property="rcontent" column="RCONTENT" />
+		<result property="rreport" column="RREPORT" />
+		<result property="rblind" column="RBLIND" />
+		<result property="sid" column="SID" />
+		<result property="bid" column="BID" />
+	</resultMap>
+	
+	<insert id="insertReport">
+		INSERT INTO REPORT(SID,BID,RID) VALUES((SELECT NVL(MAX(SID),0)+1 FROM REPORT),#{bid},#{rid})
+	</insert>
+	
+	<delete id="deleteReport">
+		DELETE REPORT WHERE SID=#{sid}
+	</delete>
+	
+	<!-- BOARD+REPORT -->
+	<select id="selectAllBR" resultMap="boardReport">
+		SELECT * FROM BOARD, REPORT WHERE BOARD.BID=REPORT.BID AND RID=0 ORDER BY REPORT.SID ASC
+	</select>
+	
+	<!-- selectOneBR은 안써도 될거같지만 일단 그래도 둔다 -->
+	<select id="selectOneBR" resultMap="boardReport">
+		SELECT * FROM BOARD, REPORT WHERE BOARD.BID=REPORT.BID AND REPORT.SID=#{sid}
+	</select>
+
+	<!-- REPLY+REPORT -->
+	<select id="selectAllReportReply" resultMap="replyReport">
+		SELECT * FROM REPLY, REPORT WHERE REPLY.RID=REPORT.RID ORDER BY REPORT.SID ASC
+	</select>
+	
+	<select id="selectAllReplyforDelete" resultMap="replyReport">
+		SELECT * FROM REPLY, REPORT WHERE REPLY.RID=REPORT.RID AND REPORT.RID=#{rid}
+	</select>
+	
+	<select id="selectAllReport" resultMap="reportResult">
+		SELECT * FROM REPORT ORDER BY RID ASC
+	</select>
+	
+	<delete id="deleteReportRid">
+		DELETE REPORT WHERE RID=#{rid}
+	</delete>
+	
+	<delete id="deleteReportBid">
+		DELETE REPORT WHERE BID=#{bid}
+	</delete>
+	
+</mapper>

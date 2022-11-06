@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<!-- DB연동정보 파일과 연결 -->
+<!-- 	<properties resource="db.properties" /> -->
+
+	<!-- 별칭(Alias) 설정, 별칭은 여러개로 넣을 수 있음, 여기에 넣은 별칭으로 mapping에서 VO에 있는 인자들을 property로 가져올 수 있음 -->
+	<typeAliases>
+		<typeAlias type="com.yeon.biz.board.BoardVO" alias="board" />
+		<typeAlias type="com.yeon.biz.member.MemberVO" alias="member" />
+		<typeAlias type="com.yeon.biz.reply.ReplyVO" alias="reply" />
+		<typeAlias type="com.yeon.biz.report.ReportVO" alias="report" />
+		<typeAlias type="com.yeon.biz.report.ReportBoardJoinVO" alias="boardJoin" />
+		<typeAlias type="com.yeon.biz.report.ReportReplyJoinVO" alias="replyJoin" />
+	</typeAliases>
+	
+	<!-- DataSource 설정 -->
+	<!-- 커넥션확보를 위해 작성, 현재는 Spring과 연결하지 않기때문에 작성하는 것,연결하게 되면 삭제해도 무방 -->
+<!-- 	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" /> 트랜젝션을 자동화해주는 부분
+			<dataSource type="POOLED">
+				<property name="driver" value="${jdbc.driverClassName}" />
+				<property name="url" value="${jdbc.url}" />
+				<property name="username" value="${jdbc.username}" />
+				<property name="password" value="${jdbc.password}" />
+			</dataSource>
+		</environment>
+	</environments> -->
+
+	<!-- SQL MAPPER 파일 연결 -->
+	<mappers>
+		<mapper resource="mappings/board-mapping.xml" />
+		<mapper resource="mappings/member-mapping.xml" />
+		<mapper resource="mappings/reply-mapping.xml" />
+		<mapper resource="mappings/report-mapping.xml" />
+	</mappers>
+
+</configuration>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardDAO">
+
+	<resultMap type="board" id="boardResult">
+		<id property="bid" column="BID" />
+		<result property="title" column="TITLE" />
+		<result property="writer" column="WRITER" />
+		<result property="mid" column="MID" />
+		<result property="content" column="CONTENT" />
+		<result property="views" column="VIEWS" />
+		<result property="regdate" column="REGDATE" />
+		<result property="fileName" column="UPLOADFILE" />
+	</resultMap>
+
+	<insert id="insertBoard">
+		INSERT INTO BOARD(BID,TITLE,WRITER,MID,CONTENT,UPLOADFILE) VALUES((SELECT NVL(MAX(BID),0)+1 FROM BOARD),#{title},#{writer},#{mid},#{content},#{fileName})	
+	</insert>
+
+	<update id="updateBoard">
+		UPDATE BOARD SET TITLE=#{title}, WRITER=#{writer}, CONTENT=#{content}, UPLOADFILE=#{fileName} WHERE BID=#{bid}
+	</update>
+	
+	<delete id="deleteBoard"> <!-- 게시글 삭제 -->
+		DELETE BOARD WHERE BID=#{bid}
+	</delete>
+	
+	<delete id="deleteBoardReport"> <!-- 신고된 게시글을 BID로 삭제 -->
+		DELETE FROM (SELECT * FROM BOARD, REPORT WHERE BOARD.BID=REPORT.BID AND BOARD.BID=#{bid})
+	</delete>
+
+	<select id="selectOneBoard" resultMap="boardResult">
+		SELECT * FROM BOARD WHERE BID=#{bid}
+	</select>
+	
+	<select id="selectAllBoard" resultMap="boardResult">
+		SELECT * FROM BOARD
+		WHERE 1=1
+		<if test="searchCondition == 'TITLE'">
+			AND TITLE LIKE '%'||#{searchContent}||'%'
+		</if>
+		<if test="searchCondition == 'WRITER'">
+			AND WRITER LIKE '%'||#{searchContent}||'%'
+		</if>
+		<if test="searchCondition == 'CONTENT'">
+			AND CONTENT LIKE '%'||#{searchContent}||'%'
+		</if>
+		<if test="searchCondition == 'MID'">
+			AND MID=#{mid}
+		</if>
+		ORDER BY BID DESC
+	</select>
+
+	<delete id="deleteBoard_M">
+	<!-- 회원탈퇴 시, mid로 게시글 삭제 -->
+		DELETE BOARD WHERE MID=#{mid}
+	</delete>
+	
+	<delete id="deleteBoardReportforDM">
+	<!-- 회원탈퇴 시, mid로 신고당한 게시글의 신고번호 삭제 -->
+		DELETE FROM (SELECT * FROM BOARD, REPORT WHERE BOARD.BID=REPORT.BID) WHERE MID=#{mid}
+	</delete>
+	
+	<delete id="deleteBoardReplyforDM">
+	<!-- 회원탈퇴 시, mid로 게시글에 달린 댓글 삭제 -->
+		DELETE FROM (SELECT * FROM BOARD, REPLY WHERE BOARD.BID=REPLY.BID AND BOARD.MID=#{mid})
+	</delete>
+	
+	<update id="updateViews">
+		UPDATE BOARD SET VIEWS=VIEWS+1 WHERE BID=#{bid}
+	</update>
+	
+
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemberDAO">
+
+	<resultMap type="member" id="memberResult">
+		<id property="mid" column="MID" />
+		<result property="mpw" column="MPW" />
+		<result property="name" column="NAME" />
+		<result property="role" column="ROLE" />
+		<result property="penalty" column="PENALTY" />
+	</resultMap>
+	
+	<insert id="insertMember">
+		INSERT INTO MEMBER(MID,MPW,NAME,ROLE) VALUES(#{mid},#{mpw},#{name},#{role})
+	</insert>
+	
+	<update id="updateMember">
+		UPDATE MEMBER SET MPW=#{mpw}, NAME=#{name} WHERE MID=#{mid}
+	</update>
+	
+	<update id="updatePenalty">
+		UPDATE MEMBER SET PENALTY=PENALTY+1 WHERE MID=#{mid}
+	</update>
+	
+	<delete id="deleteMember">
+		DELETE MEMBER WHERE MID=#{mid} AND MPW=#{mpw}
+	</delete>
+	
+	<delete id="deleteAdmin">
+		DELETE MEMBER WHERE MID=#{mid}
+	</delete>
+	
+	<select id="check" resultMap="memberResult">
+		SELECT * FROM MEMBER
+		WHERE 1=1
+		<if test="mid != null">
+		AND MID=#{mid}
+		</if>
+		<if test="name!=null">
+		AND NAME=#{name}
+		</if>
+	</select> <!-- 돌려보고 resultMap 확인해보기 -->
+	
+	<select id="selectOneMemeber" resultMap="memberResult">
+		SELECT * FROM MEMBER WHERE MID=#{mid} AND MPW=#{mpw}
+	</select>
+	
+	<select id="selectPenaltyMember" resultMap="memberResult">
+		SELECT * FROM MEMBER WHERE PENALTY>=3
+	</select>
+	
+<!-- 	<delete id="deleteMember_B">
+		DELETE FROM BOARD B WHERE B.MID=
+		(
+    		SELECT M.MID FROM MEMBER M
+			WHERE B.MID=M.MID
+			AND M.MID=#{mid}
+		)
+	</delete> -->
+	
+</mapper>
